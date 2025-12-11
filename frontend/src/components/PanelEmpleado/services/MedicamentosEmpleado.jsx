@@ -56,7 +56,22 @@ const MedicamentosEmpleado = () => {
   }, [page, busqueda, filtroStock]);
 
   /**
+   * Verifica si un medicamento está vencido
+   * @param {string} fechaVencimiento - Fecha de vencimiento del medicamento
+   * @returns {boolean} true si está vencido, false en caso contrario
+   */
+  const esVencido = (fechaVencimiento) => {
+    if (!fechaVencimiento) return false;
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const vencimiento = new Date(fechaVencimiento);
+    vencimiento.setHours(0, 0, 0, 0);
+    return vencimiento < hoy;
+  };
+
+  /**
    * Carga los medicamentos desde la API según los filtros actuales
+   * NOTA: Excluye automáticamente medicamentos vencidos
    * @returns {Promise<void>}
    */
   const cargarMedicamentos = async () => {
@@ -78,9 +93,14 @@ const MedicamentosEmpleado = () => {
         const medicamentosData = response.data.results || response.data;
         const total = response.data.count || medicamentosData.length;
         
-        // Actualiza el estado con los datos obtenidos
-        setMedicamentos(Array.isArray(medicamentosData) ? medicamentosData : []);
-        setTotalCount(total || 0);
+        // FILTRO: Excluir medicamentos vencidos
+        const medicamentosNoVencidos = Array.isArray(medicamentosData) 
+          ? medicamentosData.filter(med => !esVencido(med.fecha_vencimiento))
+          : [];
+        
+        // Actualiza el estado con los datos obtenidos (sin vencidos)
+        setMedicamentos(medicamentosNoVencidos);
+        setTotalCount(medicamentosNoVencidos.length);
         
         console.log('Medicamentos cargados correctamente:', medicamentosData.length);
       } else {
@@ -541,7 +561,7 @@ const MedicamentosEmpleado = () => {
                   Estado
                 </th>
                 <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700">
-                  Vencimiento
+                  Vencimiento (Vigentes)
                 </th>
                 <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700">
                   Acciones
@@ -550,18 +570,21 @@ const MedicamentosEmpleado = () => {
             </thead>
 
             <tbody>
-              {medicamentos.map((med) => {
+              {medicamentos.filter(med => !esVencido(med.fecha_vencimiento)).map((med) => {
                 const diasVencer = getDiasParaVencer(med.fecha_vencimiento);
                 const stockBajo = med.stock_actual <= med.stock_minimo;
                 const vencimientoCercano =
                   esProximoAVencer(med.fecha_vencimiento);
+                const vencido = esVencido(med.fecha_vencimiento);
 
                 return (
                   <motion.tr
                     key={med.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="border-b border-slate-100 hover:bg-blue-50 transition"
+                    className={`border-b border-slate-100 transition ${
+                      vencido ? 'bg-red-50 opacity-50' : 'hover:bg-blue-50'
+                    }`}
                   >
                     <td className="px-4 py-3">
                       <div className="font-semibold text-slate-800">
