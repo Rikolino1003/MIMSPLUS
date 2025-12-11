@@ -6,9 +6,10 @@
    VARIABLES Y RESET
 -------------------------------------------------------- */
 :root {
-  --primary: #7c3aed;
-  --primary-hover: #6d28d9;
-  --secondary: #4f46e5;
+  /* Nueva paleta más profesional y contrastada (teal/indigo) */
+  --primary: #0ea5a4; /* teal-500 */
+  --primary-hover: #0891b2; /* teal-600 */
+  --secondary: #2563eb; /* indigo-600 */
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;

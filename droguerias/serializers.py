@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Drogueria, Conversacion, Mensaje
+from .models import Drogueria, Conversacion, Mensaje, UsuarioDrogueria, InventarioDrogueria, MovimientoDrogueria
 
 
 class DrogueriaSerializer(serializers.ModelSerializer):
@@ -59,3 +59,44 @@ class ConversacionSerializer(serializers.ModelSerializer):
                 'creado': ultimo.creado
             }
         return None
+
+
+
+class UsuarioDrogueriaSerializer(serializers.ModelSerializer):
+    usuario_username = serializers.CharField(source='usuario.username', read_only=True)
+    drogueria_nombre = serializers.CharField(source='drogueria.nombre', read_only=True)
+
+    class Meta:
+        model = UsuarioDrogueria
+        fields = ['id', 'usuario', 'usuario_username', 'drogueria', 'drogueria_nombre', 'rol', 'activo', 'creado']
+        read_only_fields = ('creado', 'usuario_username', 'drogueria_nombre')
+
+
+class InventarioDrogueriaSerializer(serializers.ModelSerializer):
+    drogueria_nombre = serializers.CharField(source='drogueria.nombre', read_only=True)
+    drogueria_codigo = serializers.CharField(source='drogueria.codigo', read_only=True)
+
+    class Meta:
+        model = InventarioDrogueria
+        fields = [
+            'id', 'drogueria', 'drogueria_nombre', 'drogueria_codigo',
+            'valor_total_inventario', 'valor_venta_total', 'cantidad_medicamentos',
+            'cantidad_stock_total', 'margen_promedio', 'ultimo_movimiento', 'creado'
+        ]
+        read_only_fields = ('valor_total_inventario', 'valor_venta_total', 'cantidad_medicamentos',
+                           'cantidad_stock_total', 'ultimo_movimiento', 'creado')
+
+
+class MovimientoDrogueriaSerializer(serializers.ModelSerializer):
+    drogueria_nombre = serializers.CharField(source='drogueria.nombre', read_only=True)
+    drogueria_destino_nombre = serializers.CharField(source='drogueria_destino.nombre', read_only=True, allow_null=True)
+    usuario_username = serializers.CharField(source='usuario.username', read_only=True, allow_null=True)
+
+    class Meta:
+        model = MovimientoDrogueria
+        fields = [
+            'id', 'drogueria', 'drogueria_nombre', 'medicamento_nombre', 'tipo_movimiento',
+            'cantidad', 'precio_unitario', 'subtotal', 'usuario', 'usuario_username',
+            'descripcion', 'drogueria_destino', 'drogueria_destino_nombre', 'creado'
+        ]
+        read_only_fields = ('subtotal', 'usuario_username', 'drogueria_destino_nombre', 'creado')

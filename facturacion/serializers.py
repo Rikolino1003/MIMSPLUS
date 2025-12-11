@@ -33,6 +33,7 @@ class DetalleFacturaSerializer(serializers.ModelSerializer):
 class FacturaSerializer(serializers.ModelSerializer):
     cliente = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all())   # 👈 ahora acepta ID de cliente
     cliente_nombre = serializers.SerializerMethodField()  # 👈 agregar nombre del cliente
+    empleado_nombre = serializers.SerializerMethodField()  # 👈 nombre del empleado
     detalles = DetalleFacturaSerializer(many=True, required=False)                # 👈 detalles anidados opcionales
 
     class Meta:
@@ -42,6 +43,7 @@ class FacturaSerializer(serializers.ModelSerializer):
             'cliente',
             'cliente_nombre',
             'empleado',
+            'empleado_nombre',
             'fecha_emision',
             'total',
             'metodo_pago',
@@ -50,10 +52,15 @@ class FacturaSerializer(serializers.ModelSerializer):
             'observaciones',
             'detalles',
         ]
-        read_only_fields = ['fecha_emision', 'cliente_nombre']
+        read_only_fields = ['fecha_emision', 'cliente_nombre', 'empleado_nombre', 'empleado']
 
     def get_cliente_nombre(self, obj):
-        return obj.cliente.nombre_completo or obj.cliente.username
+        return obj.cliente.nombre_completo if hasattr(obj.cliente, 'nombre_completo') else (obj.cliente.username if obj.cliente else "N/A")
+    
+    def get_empleado_nombre(self, obj):
+        if obj.empleado:
+            return obj.empleado.nombre_completo if hasattr(obj.empleado, 'nombre_completo') else obj.empleado.username
+        return None
 
     # =========================
     # 🔹 Crear factura con detalles

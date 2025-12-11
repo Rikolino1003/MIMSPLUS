@@ -161,7 +161,7 @@ class EnviarFacturaEmailView(APIView):
         
         try:
             # Generar el PDF
-                pdf_buffer = generar_factura_pdf(factura)
+            pdf_buffer = generar_factura_pdf(factura)
             
             # Crear el correo electrónico
             email = EmailMessage(

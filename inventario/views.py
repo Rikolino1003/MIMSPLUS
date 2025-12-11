@@ -278,6 +278,14 @@ class CategoriaConMedicamentosListAPIView(generics.ListAPIView):
 class MedicamentosByDrogueriaListAPIView(generics.ListAPIView):
     """Lista medicamentos filtrados por drogueria (query param: ?drogueria=<id>)."""
     serializer_class = MedicamentoSerializer
+    permission_classes = [permissions.AllowAny]
+    
+    def get_queryset(self):
+        qs = Medicamento.objects.all()
+        drogueria_id = self.request.query_params.get('drogueria')
+        if drogueria_id:
+            qs = qs.filter(drogueria_id=drogueria_id)
+        return qs
 
 
 # ======================================================

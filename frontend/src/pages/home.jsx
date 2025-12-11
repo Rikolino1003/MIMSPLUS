@@ -66,9 +66,11 @@ export default function Home({ carrito, setCarrito, carritoOpen, setCarritoOpen,
 
   // Filtros
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
+  const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [busquedaDebounced, setBusquedaDebounced] = useState("");
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  const [orden, setOrden] = useState("nombre_asc");
   
   // Refs para optimización
   const debounceTimer = useRef(null);
@@ -113,8 +115,10 @@ export default function Home({ carrito, setCarrito, carritoOpen, setCarritoOpen,
     if (disponibleOnly) activos++;
     if (valoracionMin > 0) activos++;
     if (categoriaSeleccionada) activos++;
+    if (categoriasSeleccionadas.length > 0) activos++;
+    if (orden !== "nombre_asc") activos++;
     return activos;
-  }, [precioMin, precioMax, disponibleOnly, valoracionMin, categoriaSeleccionada]);
+  }, [precioMin, precioMax, disponibleOnly, valoracionMin, categoriaSeleccionada, categoriasSeleccionadas, orden]);
 
   // Debounce para búsqueda
   useEffect(() => {
@@ -186,9 +190,13 @@ export default function Home({ carrito, setCarrito, carritoOpen, setCarritoOpen,
       
       const params = { page, page_size: PAGE_SIZE };
       if (categoriaSeleccionada) params.categoria = categoriaSeleccionada;
+      if (categoriasSeleccionadas.length > 0) params.categorias = categoriasSeleccionadas.join(',');
       if (busquedaDebounced) params.q = busquedaDebounced;
       if (precioMin) params.precio_min = precioMin;
       if (precioMax) params.precio_max = precioMax;
+      if (disponibleOnly) params.disponible = true;
+      if (valoracionMin > 0) params.valoracion_min = valoracionMin;
+      if (orden) params.orden = orden;
       if (disponibleOnly) params.disponible = true;
 
       // Intentar primero con la ruta de catálogo, si falla probar con medicamentos-crud
@@ -231,7 +239,7 @@ export default function Home({ carrito, setCarrito, carritoOpen, setCarritoOpen,
       setLoading(false);
       fetchAbortController.current = null;
     }
-  }, [categoriaSeleccionada, busquedaDebounced, precioMin, precioMax, disponibleOnly, page]);
+  }, [categoriaSeleccionada, categoriasSeleccionadas, busquedaDebounced, precioMin, precioMax, disponibleOnly, valoracionMin, orden, page]);
 
   // Llamar fetchProductos cuando cambian los filtros
   useEffect(() => {
@@ -246,7 +254,7 @@ export default function Home({ carrito, setCarrito, carritoOpen, setCarritoOpen,
   // Resetear página cuando cambian los filtros (excepto page)
   useEffect(() => {
     setPage(1);
-  }, [categoriaSeleccionada, busquedaDebounced, precioMin, precioMax, disponibleOnly, valoracionMin]);
+  }, [categoriaSeleccionada, categoriasSeleccionadas, busquedaDebounced, precioMin, precioMax, disponibleOnly, valoracionMin, orden]);
 
   const limpiarFiltros = useCallback(() => {
     setPrecioMin("");
@@ -254,7 +262,9 @@ export default function Home({ carrito, setCarrito, carritoOpen, setCarritoOpen,
     setDisponibleOnly(false);
     setValoracionMin(0);
     setCategoriaSeleccionada(null);
+    setCategoriasSeleccionadas([]);
     setBusqueda("");
+    setOrden("nombre_asc");
     setPage(1);
   }, []);
 
@@ -311,130 +321,131 @@ export default function Home({ carrito, setCarrito, carritoOpen, setCarritoOpen,
       </motion.div>
 
       <div className="max-w-6xl mx-auto w-full px-6 py-8">
-        {/* Categorías - Carrusel Mejorado */}
+        {/* Barra de Filtros Consolidada y Mejorada */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="mb-8"
+          className="mb-6"
         >
-          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <TrendingUp size={20} /> Categorías Populares
-          </h3>
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {categorias.map((c) => (
-              <motion.button
-                key={c.id}
-                whileHover={{ scale: 1.05 }}
-                onClick={() => setCategoriaSeleccionada(categoriaSeleccionada === c.id ? null : c.id)}
-                className={`flex-none px-6 py-3 rounded-full font-medium transition-all ${
-                  categoriaSeleccionada === c.id
-                    ? "bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-lg"
-                    : "bg-white text-gray-700 shadow-md hover:shadow-lg border-2 border-transparent hover:border-blue-300"
-                }`}
-              >
-                {c.nombre}
-              </motion.button>
-            ))}
+          {/* Búsqueda y Toggle */}
+          <div className="flex gap-3 mb-4">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="🔍 Busca medicamentos, marca, dolencia..."
+                className="w-full border-2 border-gray-300 rounded-xl p-3 focus:border-blue-500 outline-none transition"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              onClick={() => setMostrarFiltros(!mostrarFiltros)}
+              className={`px-4 py-3 rounded-xl font-medium flex items-center gap-2 transition ${
+                mostrarFiltros
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500"
+              }`}
+            >
+              <Filter size={18} />
+              {filtrosActivos > 0 ? `Filtros (${filtrosActivos})` : 'Filtros'} {filtrosActivos > 0 && <span className="bg-red-500 text-white text-xs rounded-full px-2 ml-1">{filtrosActivos}</span>}
+            </motion.button>
           </div>
-        </motion.div>
 
-        {/* Filtros Avanzados - Panel Colapsable */}
-        <motion.div
-          initial={false}
-          animate={{ height: mostrarFiltros ? "auto" : "0" }}
-          transition={{ duration: 0.3 }}
-          className="overflow-hidden mb-6"
-        >
-          <motion.div
-            className="bg-white rounded-xl shadow-md p-6 border-2 border-blue-100"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: mostrarFiltros ? 1 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Precio Mínimo</label>
-                <input
-                  type="number"
-                  placeholder="$0"
-                  className="w-full border-2 border-gray-200 rounded-lg p-2 focus:border-blue-500 outline-none"
-                  value={precioMin}
-                  onChange={(e) => setPrecioMin(e.target.value)}
-                />
+          {/* Panel de Filtros Colapsable */}
+          {mostrarFiltros && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-xl shadow-md p-6 border border-gray-100"
+            >
+              {/* Fila 1: Ordenamiento, Valoración y Precio */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="bg-slate-50 p-3 rounded-lg border border-gray-100">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Ordenar</label>
+                  <select 
+                    value={orden} 
+                    onChange={(e) => { setOrden(e.target.value); setPage(1); }} 
+                    className="w-full border bg-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  >
+                    <option value="nombre_asc">A - Z (Alfabético)</option>
+                    <option value="nombre_desc">Z - A (Alfabético inverso)</option>
+                    <option value="precio_asc">Precio: Menor a Mayor</option>
+                    <option value="precio_desc">Precio: Mayor a Menor</option>
+                  </select>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-lg border border-gray-100">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Valoración mínima</label>
+                  <select
+                    value={valoracionMin}
+                    onChange={(e) => setValoracionMin(Number(e.target.value))}
+                    className="w-full border bg-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  >
+                    <option value="0">Todas</option>
+                    <option value="1">⭐ 1+</option>
+                    <option value="2">⭐⭐ 2+</option>
+                    <option value="3">⭐⭐⭐ 3+</option>
+                    <option value="4">⭐⭐⭐⭐ 4+</option>
+                  </select>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-lg border border-gray-100">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">💵 Precio</label>
+                  <div className="flex gap-2">
+                    <input type="number" placeholder="Min" className="flex-1 border bg-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-amber-200" value={precioMin} onChange={(e) => setPrecioMin(e.target.value)} />
+                    <input type="number" placeholder="Max" className="flex-1 border bg-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-amber-200" value={precioMax} onChange={(e) => setPrecioMax(e.target.value)} />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Precio Máximo</label>
-                <input
-                  type="number"
-                  placeholder="$999999"
-                  className="w-full border-2 border-gray-200 rounded-lg p-2 focus:border-blue-500 outline-none"
-                  value={precioMax}
-                  onChange={(e) => setPrecioMax(e.target.value)}
-                />
+
+              {/* Fila 2: Tipos de Fármaco (Categorías Múltiples) */}
+              <div className="mb-6 border-t pt-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Tipos de Fármaco</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {categorias.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        if (categoriasSeleccionadas.includes(cat.id)) {
+                          setCategoriasSeleccionadas(categoriasSeleccionadas.filter(c => c !== cat.id));
+                        } else {
+                          setCategoriasSeleccionadas([...categoriasSeleccionadas, cat.id]);
+                        }
+                        setPage(1);
+                      }}
+                      className={`p-2 rounded-lg text-sm font-medium transition border ${categoriasSeleccionadas.includes(cat.id) ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-gray-700 border-gray-100'}`}
+                    >
+                      {cat.nombre}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Valoración Mín.</label>
-                <select
-                  value={valoracionMin}
-                  onChange={(e) => setValoracionMin(Number(e.target.value))}
-                  className="w-full border-2 border-gray-200 rounded-lg p-2 focus:border-blue-500 outline-none"
-                >
-                  <option value="0">Todas</option>
-                  <option value="1">⭐ 1+</option>
-                  <option value="2">⭐⭐ 2+</option>
-                  <option value="3">⭐⭐⭐ 3+</option>
-                  <option value="4">⭐⭐⭐⭐ 4+</option>
-                </select>
-              </div>
-              <div className="flex flex-col justify-end gap-2">
-                <label className="flex items-center gap-2 p-2 bg-green-50 rounded-lg border-2 border-green-200 cursor-pointer">
+
+              {/* Fila 3: Checkboxes y Acciones */}
+              <div className="border-t pt-4 flex flex-wrap gap-3 items-center">
+                <label className="flex items-center gap-2 cursor-pointer p-2 bg-green-50 rounded-lg border border-green-200">
                   <input
                     type="checkbox"
                     checked={disponibleOnly}
-                    onChange={(e) => setDisponibleOnly(e.target.checked)}
+                    onChange={(e) => { setDisponibleOnly(e.target.checked); setPage(1); }}
                     className="w-4 h-4"
                   />
-                  <span className="text-sm font-medium">Disponibles</span>
+                  <span className="text-sm font-medium text-gray-700">✅ Solo disponibles</span>
                 </label>
+                
+                <div className="flex gap-2 ml-auto">
+                  <button onClick={limpiarFiltros} className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50">🔄 Limpiar</button>
+                  <button onClick={() => { setPrecioMin(''); setPrecioMax(''); setDisponibleOnly(false); setCategoriasSeleccionadas([]); setOrden('nombre_asc'); setPage(1); }} className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50">📋 Mostrar todos</button>
+                  <button onClick={() => fetchProductos()} className="px-4 py-2 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-lg text-sm font-semibold shadow-sm hover:opacity-95">🔎 Aplicar</button>
+                </div>
               </div>
-              <div className="flex justify-end gap-2 items-end">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  onClick={limpiarFiltros}
-                    className="px-4 py-2 btn-secondary rounded-lg hover:bg-gray-400 font-medium"
-                >
-                  Limpiar
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </motion.div>
-
-        {/* Barra de búsqueda y filtros toggle */}
-        <div className="flex gap-3 mb-6">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              placeholder="🔍 Busca medicamentos, marca, dolencia..."
-              className="w-full border-2 border-gray-300 rounded-xl p-3 focus:border-blue-500 outline-none transition"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            onClick={() => setMostrarFiltros(!mostrarFiltros)}
-            className={`px-4 py-3 rounded-xl font-medium flex items-center gap-2 transition ${
-              mostrarFiltros
-                ? "bg-blue-600 text-white shadow-lg"
-                : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500"
-            }`}
-          >
-            <Filter size={18} />
-            {filtrosActivos > 0 ? `Filtros activos (${filtrosActivos})` : 'Ver filtros'} {filtrosActivos > 0 && <span className="bg-red-500 text-white text-xs rounded-full px-2 ml-1">{filtrosActivos}</span>}
-          </motion.button>
-        </div>
 
         {/* Catálogo - Grid de Productos Mejorado */}
         <motion.div

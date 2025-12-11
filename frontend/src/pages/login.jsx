@@ -151,6 +151,12 @@ export default function Login() {
       
       // Determinar la ruta de redirección basada en el rol registrado
       const getRedirectPath = () => {
+        // ✅ Priorizar redirect_path del backend (si está disponible)
+        if (loginResponse?.redirect_path) {
+          console.log('Usando redirect_path del backend:', loginResponse.redirect_path);
+          return loginResponse.redirect_path;
+        }
+
         // Normalizar posibles fuentes del rol (campo simple, objeto rol_nuevo.nombre, rol_actual, groups)
         let roleRaw = '';
         try {
@@ -168,12 +174,6 @@ export default function Login() {
         const role = String(roleRaw || '').toLowerCase().trim();
 
         console.log('Rol procesado (robusto):', role);
-
-        // Priorizar admin_redirect si el backend lo envió y el usuario parece admin-like
-        if (usuario?.admin_redirect && (usuario?.is_superuser || usuario?.is_staff || role.includes('admin'))) {
-          console.log('Usando admin_redirect provisto por backend:', usuario.admin_redirect);
-          return usuario.admin_redirect;
-        }
 
         // Superuser / staff / rol con 'admin' -> panel administrativo
         if (usuario?.is_superuser || usuario?.is_staff || role.includes('admin')) {

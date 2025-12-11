@@ -9,24 +9,30 @@ from django.utils import timezone
 def apply_medicamento_filters(qs, params):
     nombre = params.get('nombre')
     categoria = params.get('categoria')
+    categorias = params.getlist('categorias')  # permite múltiples categorías
     drogueria = params.get('drogueria')
     estado = params.get('estado')
+    orden = params.get('orden')  # 'nombre_asc', 'nombre_desc', 'precio_asc', 'precio_desc'
 
-    # búsqueda general (q) — si viene, usar sobre varios campos
+    # búsqueda general (q) — si viene, usar sobre varios campos (sin proveedor)
     qparam = params.get('q')
     if qparam:
         qs = qs.filter(
             Q(nombre__icontains=qparam) |
             Q(descripcion__icontains=qparam) |
             Q(codigo_barra__icontains=qparam) |
-            Q(proveedor__icontains=qparam) |
             Q(lote__icontains=qparam)
         )
 
     if nombre and not qparam:
         qs = qs.filter(nombre__icontains=nombre)
+    
+    # Soporte para categoría única o múltiples categorías
     if categoria:
         qs = qs.filter(categoria_id=categoria)
+    elif categorias:
+        qs = qs.filter(categoria_id__in=categorias)
+    
     if drogueria:
         qs = qs.filter(drogueria_id=drogueria)
     if estado is not None:
@@ -34,6 +40,16 @@ def apply_medicamento_filters(qs, params):
             qs = qs.filter(estado=False)
         else:
             qs = qs.filter(estado=True)
+    
+    # Aplicar ordenamiento
+    if orden == 'nombre_asc':
+        qs = qs.order_by('nombre')
+    elif orden == 'nombre_desc':
+        qs = qs.order_by('-nombre')
+    elif orden == 'precio_asc':
+        qs = qs.order_by('precio_venta')
+    elif orden == 'precio_desc':
+        qs = qs.order_by('-precio_venta')
 
     # ------------------
     # Rango de precios
@@ -75,12 +91,9 @@ def apply_medicamento_filters(qs, params):
             qs = qs.filter(stock_actual__lte=F('stock_reservado'))
 
     # ------------------
-    # Proveedor / lote
+    # Solo lote (sin proveedor)
     # ------------------
-    proveedor = params.get('proveedor')
     lote = params.get('lote')
-    if proveedor:
-        qs = qs.filter(proveedor__icontains=proveedor)
     if lote:
         qs = qs.filter(lote__icontains=lote)
 

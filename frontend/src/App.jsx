@@ -7,7 +7,7 @@ import Home from "./pages/home.jsx";
 import CatalogoMedicamentos from "./pages/catalogo.jsx";
 import Registro from "./pages/registro.jsx";
 import Login from "./pages/login.jsx";
-import PerfilCliente from "./components/perfilCliente/perfilCliente";
+import PerfilCliente from "./pages/perfilcliente.jsx";
 import PanelAdmin from "./pages/panelAdmin.jsx";
 import EmpleadoDashboard from "./pages/empleadoDashboard.jsx";
 import EnviarCorreoRecuperacion from "./pages/EnviarCorreoRecuperacion.jsx";
@@ -18,6 +18,7 @@ import Mensajes from "./pages/Mensajes.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Ofertas from "./pages/Ofertas.jsx";
 import Droguerias from "./pages/droguerias.jsx";
+import Workspace from "./pages/Workspace.jsx";
 import { isSessionValid, getValidToken, setAuthToken, clearAuthData } from "./services/api.js";
 import { useInactivity } from "./hooks/useInactivity.js";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
@@ -362,6 +363,7 @@ export default function App() {
                 </PrivateRoute>
               }
             />
+            <Route path="workspace/:id" element={<Workspace />} />
           </Route>
         </Routes>
       </div>

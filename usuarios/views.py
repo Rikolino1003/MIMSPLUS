@@ -2,6 +2,7 @@
 import uuid
 from django.core.mail import send_mail
 from django.conf import settings
+import re
 from django.contrib.auth import authenticate
 from rest_framework import status, viewsets, permissions
 from rest_framework.views import APIView
@@ -10,6 +11,8 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Usuario, Rol, Permiso
 from .serializer import UsuarioSerializer, RolSerializer, PermisoSerializer, UsuarioTablaSerializer
+from droguerias.models import Drogueria, UsuarioDrogueria
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # =========================
@@ -22,11 +25,43 @@ class RegistroUsuarioView(APIView):
     def post(self, request):
         serializer = UsuarioSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "Usuario registrado correctamente"},
-                status=status.HTTP_201_CREATED
-            )
+            usuario = serializer.save()
+
+            # Si se envía drogueria en el body, crear membresía
+            drogueria_id = request.data.get('drogueria') or request.data.get('drogueria_id')
+            rol_membresia = request.data.get('rol_membresia') or request.data.get('rol')
+            set_active = request.data.get('set_active', False)
+
+            if drogueria_id:
+                try:
+                    drog = Drogueria.objects.get(pk=drogueria_id)
+                    UsuarioDrogueria.objects.get_or_create(usuario=usuario, drogueria=drog, defaults={
+                        'rol': rol_membresia or 'empleado',
+                        'activo': True
+                    })
+                    if set_active in [True, 'true', 'True', '1', 1]:
+                        # Guardar drogueria activa si el modelo Usuario la soporta
+                        if hasattr(usuario, 'active_drogueria'):
+                            usuario.active_drogueria = drog
+                            usuario.save(update_fields=['active_drogueria'])
+                except Drogueria.DoesNotExist:
+                    pass
+
+            # Generar token para login inmediato
+            refresh = RefreshToken.for_user(usuario)
+
+            return Response({
+                "usuario": {
+                    "id": usuario.id,
+                    "username": usuario.username,
+                    "nombre_completo": getattr(usuario, 'nombre_completo', ''),
+                    "email": usuario.email,
+                },
+                "token": str(refresh.access_token),
+                "refresh": str(refresh),
+                "workspace_url": f"/workspace/{usuario.active_drogueria.id}" if hasattr(usuario, 'active_drogueria') and usuario.active_drogueria else None,
+            }, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -46,7 +81,15 @@ class LoginUsuarioView(APIView):
             rol_actual = usuario.get_rol_actual()
             # Determinar si el usuario debe ser dirigido al panel de administración
             es_admin = usuario.is_superuser or (rol_actual and str(rol_actual).lower() in ["admin", "administrador"])
-            admin_redirect = "/admin/" if es_admin else None
+            es_empleado = rol_actual and str(rol_actual).lower() in ["empleado", "vendedor"]
+            
+            # Determinar la redirección correcta según el rol
+            if es_admin:
+                redirect_path = "/paneladmin"
+            elif es_empleado:
+                redirect_path = "/panelempleado"
+            else:
+                redirect_path = "/perfilcliente"
 
             return Response({
                 "usuario": {
@@ -62,7 +105,7 @@ class LoginUsuarioView(APIView):
                 },
                 "token": str(refresh.access_token),
                 "refresh": str(refresh),
-                "admin_redirect": admin_redirect,
+                "redirect_path": redirect_path,
             })
         return Response(
             {"error": "Usuario o contraseña incorrectos"},
@@ -92,6 +135,88 @@ def perfil_usuario(request):
         "is_staff": usuario.is_staff,
         "admin_redirect": ("/admin/" if (usuario.is_superuser or (rol_actual and str(rol_actual).lower() in ["admin","administrador"])) else None),
     })
+
+
+@api_view(['GET', 'PUT', 'PATCH'])
+@permission_classes([permissions.IsAuthenticated])
+def actualizar_perfil_usuario(request):
+    """
+    GET: Obtiene el perfil del usuario autenticado
+    PUT/PATCH: Actualiza el perfil del usuario autenticado
+    """
+    usuario = request.user
+    rol_actual = usuario.get_rol_actual()
+    
+    if request.method == 'GET':
+        return Response({
+            "id": usuario.id,
+            "username": usuario.username,
+            "email": usuario.email,
+            "nombre_completo": usuario.nombre_completo,
+            "telefono": usuario.telefono,
+            "direccion": usuario.direccion,
+            "rol": rol_actual,
+            "rol_nuevo": RolSerializer(usuario.rol_nuevo).data if usuario.rol_nuevo else None,
+            "is_superuser": usuario.is_superuser,
+            "is_staff": usuario.is_staff,
+        })
+    
+    elif request.method in ['PUT', 'PATCH']:
+        # Permitir actualizar campos permitidos
+        permitidos = ['nombre_completo', 'email', 'telefono', 'direccion']
+        datos = request.data
+        
+        errores = {}
+        
+        # Validar nombre completo
+        if 'nombre_completo' in datos:
+            nombre = datos.get('nombre_completo', '').strip()
+            if len(nombre) < 2:
+                errores['nombre_completo'] = 'El nombre debe tener al menos 2 caracteres'
+            elif len(nombre) > 150:
+                errores['nombre_completo'] = 'El nombre no puede exceder 150 caracteres'
+            else:
+                usuario.nombre_completo = nombre
+        
+        # Validar email
+        if 'email' in datos:
+            email = datos.get('email', '').strip()
+            if email and not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+                errores['email'] = 'Email inválido'
+            elif email and Usuario.objects.exclude(pk=usuario.pk).filter(email=email).exists():
+                errores['email'] = 'Este email ya está registrado'
+            elif email:
+                usuario.email = email
+        
+        # Validar teléfono
+        if 'telefono' in datos:
+            telefono = datos.get('telefono', '').strip()
+            if telefono and len(telefono) < 7:
+                errores['telefono'] = 'Teléfono inválido'
+            else:
+                usuario.telefono = telefono
+        
+        # Dirección
+        if 'direccion' in datos:
+            usuario.direccion = datos.get('direccion', '').strip()
+        
+        if errores:
+            return Response({"errors": errores}, status=status.HTTP_400_BAD_REQUEST)
+        
+        usuario.save()
+        
+        return Response({
+            "message": "Perfil actualizado correctamente",
+            "usuario": {
+                "id": usuario.id,
+                "username": usuario.username,
+                "email": usuario.email,
+                "nombre_completo": usuario.nombre_completo,
+                "telefono": usuario.telefono,
+                "direccion": usuario.direccion,
+                "rol": rol_actual,
+            }
+        }, status=status.HTTP_200_OK)
 
 
 # =========================
