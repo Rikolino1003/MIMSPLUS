@@ -1,0 +1,73 @@
+import axios from "axios";
+
+const API_URL = "http://localhost:8000/api/";
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: { "Content-Type": "application/json" },
+});
+
+// ===========================
+// 🔐 AUTENTICACIÓN
+// ===========================
+
+// Configurar token JWT en headers
+export const setAuthToken = (token) => {
+  if (token) api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  else delete api.defaults.headers.common["Authorization"];
+};
+
+// Inicializar con token si existe
+const token = localStorage.getItem("token");
+if (token) setAuthToken(token);
+
+// ===========================
+// 🔑 LOGIN, REGISTRO Y PERFIL
+// ===========================
+
+export const loginUsuario = async (data) => {
+  try {
+    const res = await api.post("usuarios/login/", data);
+    const { usuario, token } = res.data;
+
+    localStorage.setItem("usuario", JSON.stringify(usuario));
+    localStorage.setItem("token", token);
+    setAuthToken(token);
+
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Error en login");
+  }
+};
+
+export const registerUsuario = async (data) => {
+  return await api.post("usuarios/registro/", data);
+};
+
+export const getPerfil = async () => {
+  const token = localStorage.getItem("token");
+  if (token) setAuthToken(token);
+  return await api.get("usuarios/perfil/");
+};
+
+export const logoutUsuario = () => {
+  localStorage.removeItem("usuario");
+  localStorage.removeItem("token");
+  setAuthToken(null);
+};
+
+// ===========================
+// 🔒 RECUPERACIÓN DE CONTRASEÑA
+// ===========================
+
+export const cambiarContrasena = async (email, codigo, nueva_contrasena, confirmar_contrasena) => {
+  return await api.post("usuarios/cambiar-contrasena/", {
+    email,
+    codigo,
+    nueva_contrasena,
+    confirmar_contrasena,
+  });
+};
+
+
+export default api;

@@ -1,0 +1,48 @@
+=================================================================
+📋 INSTRUCCIONES DE INSTALACIÓN - MÓDULO DE REPORTES
+=================================================================
+
+Para activar el módulo de reportes en tu proyecto, sigue estos pasos:
+
+PASO 1: CREAR LAS MIGRACIONES
+------------------------------
+Abre una terminal en la carpeta del proyecto y ejecuta:
+
+python manage.py makemigrations reportes
+
+Esto creará los archivos de migración necesarios para crear las tablas
+en la base de datos.
+
+PASO 2: APLICAR LAS MIGRACIONES
+--------------------------------
+Ejecuta:
+
+python manage.py migrate
+
+Esto creará las tablas en la base de datos.
+
+PASO 3: VERIFICAR QUE TODO ESTÉ CORRECTO
+-----------------------------------------
+1. Verifica que el servidor Django inicie sin errores:
+   python manage.py runserver
+
+2. Accede al admin de Django y verifica que aparezca "Reportes":
+   http://localhost:8000/admin/
+
+3. Verifica que las rutas estén disponibles:
+   http://localhost:8000/api/reportes/
+
+NOTAS IMPORTANTES:
+------------------
+- El módulo ya está agregado en settings.py e urls.py
+- No necesitas instalar dependencias adicionales (reportlab ya está en requirements.txt)
+- Todos los archivos están creados y listos para usar
+
+Si tienes algún error, revisa:
+1. Que Python y Django estén instalados correctamente
+2. Que la base de datos esté configurada
+3. Los logs del servidor para mensajes de error específicos
+
+¡Listo! El módulo de reportes ya está funcionando. 🚀
+
+=================================================================

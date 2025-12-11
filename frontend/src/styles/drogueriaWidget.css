@@ -1,0 +1,126 @@
+/* ============================================
+   DROGUERIA WIDGET - Mini selector en paneles
+   ============================================ */
+
+.drogueria-widget {
+  background: linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%) !important;
+  border: 1px solid #d0e8f2 !important;
+  border-radius: 10px !important;
+  padding: 0 !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: 0 2px 8px rgba(6,182,212,0.08) !important;
+}
+
+.widget-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  padding: 0.9rem 1rem !important;
+  cursor: pointer !important;
+  transition: background-color 200ms ease !important;
+}
+
+.widget-container:hover {
+  background-color: rgba(6,182,212,0.03) !important;
+}
+
+.widget-icon {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+.widget-info {
+  flex: 1 !important;
+}
+
+.widget-info h4 {
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.widget-info p {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin: 0.25rem 0 0 0 !important;
+  padding: 0 !important;
+}
+
+.widget-toggle {
+  flex-shrink: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: #06b6d4 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.5rem !important;
+  border-radius: 6px !important;
+  transition: background-color 200ms ease !important;
+}
+
+.widget-toggle:hover {
+  background-color: rgba(6,182,212,0.1) !important;
+}
+
+/* Dropdown */
+.widget-dropdown {
+  border-top: 1px solid #d0e8f2 !important;
+  padding: 0.5rem 0 !important;
+  animation: slideDown 200ms ease !important;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0 !important;
+    transform: translateY(-8px) !important;
+  }
+  to {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+}
+
+.dropdown-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+
+.dropdown-item {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  background: transparent !important;
+  border: 0 !important;
+  text-align: left !important;
+  color: #0f172a !important;
+  cursor: pointer !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  transition: background-color 200ms ease !important;
+  border-left: 4px solid transparent !important;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(6,182,212,0.08) !important;
+}
+
+.dropdown-item.active {
+  background-color: rgba(6,182,212,0.12) !important;
+  border-left-color: #06b6d4 !important;
+  font-weight: 600 !important;
+  color: #0369a1 !important;
+}

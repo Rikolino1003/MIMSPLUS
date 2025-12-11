@@ -1,0 +1,147 @@
+/* ================================
+   PANEL GENERAL
+================================ */
+.panel-empleado {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 0.4s ease;
+}
+
+.panel-empleado h2 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #1e293b;
+  text-align: center;
+}
+
+/* ================================
+   FORMULARIO
+================================ */
+.panel-empleado form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.panel-empleado input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d0d7e2;
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.panel-empleado input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.panel-empleado button[type="submit"] {
+  grid-column: span 2;
+  padding: 12px 20px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.panel-empleado button[type="submit"]:hover {
+  background: #4338ca;
+  transform: scale(1.02);
+}
+
+/* ================================
+   MENSAJES
+================================ */
+.panel-empleado p {
+  margin-top: -10px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-left: 5px solid #0284c7;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ================================
+   TABLA
+================================ */
+.tabla-medicamentos {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.tabla-medicamentos th {
+  background: #f1f5f9;
+  color: #1e293b;
+  padding: 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: 8px;
+}
+
+.tabla-medicamentos td {
+  background: #ffffff;
+  padding: 14px;
+  text-align: center;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #334155;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ================================
+   BOTONES DE ACCIONES
+================================ */
+.tabla-medicamentos button {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: all 0.2s ease;
+}
+
+.tabla-medicamentos button:nth-child(1) {
+  background: #0ea5e9;
+  color: white;
+}
+
+.tabla-medicamentos button:nth-child(1):hover {
+  background: #0284c7;
+}
+
+.tabla-medicamentos button:nth-child(2) {
+  background: #ef4444;
+  color: white;
+}
+
+.tabla-medicamentos button:nth-child(2):hover {
+  background: #dc2626;
+}
+
+/* ================================
+   EFECTOS Y ANIMACIONES
+================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

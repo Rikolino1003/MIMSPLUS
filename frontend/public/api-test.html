@@ -1,0 +1,61 @@
+<!-- Test endpoints directamente desde el navegador -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Test</title>
+  <style>
+    body { font-family: monospace; margin: 20px; }
+    .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+    .ok { background: #90EE90; }
+    .error { background: #FFB6C6; }
+  </style>
+</head>
+<body>
+  <h1>API Endpoints Test</h1>
+  <div id="results"></div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const baseURL = 'http://localhost:8000';
+    const resultsDiv = document.getElementById('results');
+
+    async function testEndpoint(name, method, path, body = null) {
+      try {
+        const options = {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        };
+        if (body) options.body = JSON.stringify(body);
+
+        const response = await fetch(baseURL + path, options);
+        const data = response.status !== 204 ? await response.json() : {};
+        
+        const div = document.createElement('div');
+        div.className = `test ${response.ok ? 'ok' : 'error'}`;
+        div.innerHTML = `<strong>${name}</strong><br/>Status: ${response.status}<br/>Response: ${JSON.stringify(data).substring(0, 100)}...`;
+        resultsDiv.appendChild(div);
+      } catch (err) {
+        const div = document.createElement('div');
+        div.className = 'test error';
+        div.innerHTML = `<strong>${name}</strong><br/>Error: ${err.message}`;
+        resultsDiv.appendChild(div);
+      }
+    }
+
+    // Run tests
+    (async () => {
+      if (!token) {
+        resultsDiv.innerHTML = '<p style="color: red;">No hay token. Por favor, inicia sesion primero.</p>';
+        return;
+      }
+
+      await testEndpoint('GET /api/droguerias/', 'GET', '/api/droguerias/');
+      await testEndpoint('GET /api/droguerias/get_active/', 'GET', '/api/droguerias/get_active/');
+      // Más tests...
+    })();
+  </script>
+</body>
+</html>

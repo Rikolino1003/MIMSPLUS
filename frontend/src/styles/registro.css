@@ -1,0 +1,34 @@
+/* Fondo general */
+.registro-bg {
+    @apply bg-gradient-to-br from-sky-50 via-blue-100 to-green-50;
+  }
+  
+  /* Fondo animado */
+  .burbuja {
+    @apply absolute bg-blue-300/20 rounded-full;
+  }
+  
+  /* Contenedor del formulario */
+  .registro-form {
+    @apply bg-white/80 backdrop-blur-xl shadow-2xl rounded-3xl p-8 w-full max-w-md border border-blue-100;
+  }
+  
+  /* Inputs */
+  .registro-input {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200 
+    focus:border-blue-500 focus:ring-2 focus:ring-blue-100 
+    outline-none transition-all bg-white/70;
+  }
+  
+  /* Botón principal */
+  .registro-btn {
+    @apply w-full bg-blue-600 text-white font-semibold py-3 rounded-xl 
+    hover:bg-blue-700 hover:shadow-lg transition-all flex 
+    items-center justify-center gap-2;
+  }
+  
+  /* Enlace al login */
+  .registro-login-link {
+    @apply text-blue-600 font-semibold hover:text-blue-800 transition-all;
+  }
+  

@@ -1,0 +1,56 @@
+🩺 1. Analgésicos
+
+Descripción: Medicamentos que alivian o eliminan el dolor sin causar pérdida de la conciencia.
+Ejemplos: Paracetamol, Ibuprofeno, Naproxeno.
+
+💊 2. Antibióticos
+
+Descripción: Combaten infecciones causadas por bacterias, impidiendo su crecimiento o destruyéndolas.
+Ejemplos: Amoxicilina, Ciprofloxacino, Azitromicina.
+
+🌡️ 3. Antipiréticos
+
+Descripción: Reducen la fiebre actuando sobre el centro regulador de la temperatura corporal en el cerebro.
+Ejemplos: Paracetamol, Ibuprofeno, Ácido acetilsalicílico.
+
+🤧 4. Antihistamínicos
+
+Descripción: Bloquean los efectos de la histamina y se usan para tratar alergias, picazón o rinitis.
+Ejemplos: Loratadina, Cetirizina, Fexofenadina.
+
+❤️ 5. Antihipertensivos
+
+Descripción: Disminuyen la presión arterial alta para prevenir enfermedades cardíacas y accidentes cerebrovasculares.
+Ejemplos: Losartán, Enalapril, Amlodipino.
+
+🤢 6. Antieméticos
+
+Descripción: Previenen o tratan las náuseas y vómitos provocados por mareo, quimioterapia u otras causas.
+Ejemplos: Metoclopramida, Ondansetrón, Dimenhidrinato.
+
+🧠 7. Antidepresivos
+
+Descripción: Regulan los niveles de neurotransmisores en el cerebro para aliviar los síntomas de depresión y ansiedad.
+Ejemplos: Sertralina, Fluoxetina, Amitriptilina. 
+
+🩺 Categoría: Analgésicos
+Nombre	Descripción	Categoría	Precio venta	Stock actual	Stock mínimo	Fecha vencimiento	Estado	Imagen URL	Verificar stock	Está vencido
+Paracetamol 500 mg	Alivia dolores leves a moderados y reduce la fiebre.	Analgésico	$3,500	40	10	2026-05-10	Activo	/img/paracetamol.jpg	✅ Suficiente	False
+Ibuprofeno 400 mg	Antiinflamatorio y analgésico para dolores musculares y fiebre.	Analgésico	$4,000	15	10	2027-01-20	Activo	/img/ibuprofeno.jpg	⚠️ Bajo stock	False
+Naproxeno 500 mg	Alivia dolor e inflamación por artritis, tendinitis y cólicos.	Analgésico	$5,200	25	10	2026-09-30	Activo	/img/naproxeno.jpg	✅ Suficiente	False
+Ketorolaco 10 mg	Analgésico potente para dolor moderado a severo.	Analgésico	$6,500	8	10	2025-12-15	Activo	/img/ketorolaco.jpg	⚠️ Bajo stock	False
+Diclofenaco 50 mg	Reduce el dolor e inflamación en músculos y articulaciones.	Analgésico	$4,800	30	10	2026-07-01	Activo	/img/diclofenaco.jpg	✅ Suficiente	False
+💊 Categoría: Antibióticos
+Nombre	Descripción	Categoría	Precio venta	Stock actual	Stock mínimo	Fecha vencimiento	Estado	Imagen URL	Verificar stock	Está vencido
+Amoxicilina 500 mg	Trata infecciones respiratorias, urinarias y de oído.	Antibiótico	$7,000	50	10	2026-04-01	Activo	/img/amoxicilina.jpg	✅ Suficiente	False
+Azitromicina 500 mg	Combate infecciones bacterianas de vías respiratorias.	Antibiótico	$8,500	20	10	2026-11-25	Activo	/img/azitromicina.jpg	✅ Suficiente	False
+Cefalexina 500 mg	Infecciones de piel, garganta y vías urinarias.	Antibiótico	$6,800	9	10	2025-12-10	Activo	/img/cefalexina.jpg	⚠️ Bajo stock	False
+Ciprofloxacino 500 mg	Trata infecciones urinarias, gastrointestinales y respiratorias.	Antibiótico	$7,900	30	10	2027-02-15	Activo	/img/ciprofloxacino.jpg	✅ Suficiente	False
+Clindamicina 300 mg	Eficaz contra infecciones cutáneas y óseas.	Antibiótico	$9,200	14	10	2026-08-20	Activo	/img/clindamicina.jpg	✅ Suficiente	False
+🌡️ Categoría: Antipiréticos
+Nombre	Descripción	Categoría	Precio venta	Stock actual	Stock mínimo	Fecha vencimiento	Estado	Imagen URL	Verificar stock	Está vencido
+Paracetamol Infantil	Disminuye fiebre y dolor en niños.	Antipirético	$3,200	25	10	2026-06-15	Activo	/img/paracetamol_infantil.jpg	✅ Suficiente	False
+Ibuprofeno Pediátrico	Antipirético y analgésico en jarabe.	Antipirético	$4,500	10	10	2026-09-01	Activo	/img/ibuprofeno_ped.jpg	⚠️ Bajo stock	False
+Ácido acetilsalicílico 500 mg	Reduce fiebre, dolor y molestias generales.	Antipirético	$2,800	18	10	2026-10-10	Activo	/img/aspirina.jpg	✅ Suficiente	False
+Metamizol sódico	Disminuye fiebre alta y dolor intenso.	Antipirético	$5,000	9	10	2025-12-01	Activo	/img/metamizol.jpg	⚠️ Bajo stock	False
+Acetaminofén 650 mg	Controla fiebre moderada y dolor muscular.	Antipirético	$3,600

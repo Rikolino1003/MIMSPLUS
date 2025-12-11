@@ -1,0 +1,155 @@
+/* moved from pages -> styles/pages */
+.catalogo-container {
+	margin: 20px auto;
+	max-width: 1200px;
+	padding: 20px;
+}
+
+.medicamentos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+.medicamento-card { background: #fff; padding: 1rem; border-radius: 12px; box-shadow: 0 6px 18px rgba(20,20,50,0.06); border: 1px solid rgba(0,0,0,0.04); }
+.medicamento-card img { width: 100%; height: 160px; object-fit: contain; border-radius: 8px; }
+.medicamento-card h3 { font-weight: 700; margin-top: 0.5rem; }
+.medicamento-card .precio { font-weight: 800; color: #0f9d58; }
+.badge-danger { background: #f87171; color: white; padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 12px; }
+.badge-success { background: #34d399; color: white; padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 12px; }
+.badge-warning { background: #f59e0b; color: white; padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 12px; }
+.badge-info { background: #60a5fa; color: white; padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 12px; }
+
+.catalogo-filtros { background: rgba(255,255,255,0.85); border-radius: 10px; box-shadow: 0 6px 16px rgba(20,20,50,0.06); }
+.categoria-seccion { padding: 10px 0; }
+.pagination-controls { text-align:center; padding: 12px 0; }
+
+.card {
+	border: 1px solid #ccc;
+	padding: 15px;
+	border-radius: 8px;
+	text-align: center;
+}
+
+.card h3 {
+	margin: 10px 0 5px;
+}
+
+.card p {
+	margin: 5px 0;
+}
+
+.precio {
+	font-size: 18px; /* Precio más destacado */
+	font-weight: bold;
+	color: #28a745;
+	margin-top: 10px;
+}
+
+.categorias-botones {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 20px;
+	justify-content: center;
+}
+
+.categoria-boton {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	background-color: #f0f0f0;
+	color: #333;
+	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.3s ease;
+}
+
+.categoria-boton.activa {
+	background-color: #007bff;
+	color: white;
+}
+
+.categoria-boton:hover {
+	background-color: #0056b3;
+	color: white;
+}
+
+.flecha-boton {
+	padding: 10px 15px;
+	border: none;
+	border-radius: 50%;
+	background-color: #007bff;
+	color: white;
+	cursor: pointer;
+	font-size: 18px;
+	transition: background-color 0.3s ease;
+}
+
+.flecha-boton:hover {
+	background-color: #0056b3;
+}
+
+.categoria-seccion {
+	text-align: center;
+}
+
+.descripcion-categoria {
+	margin: 10px 0;
+	font-size: 16px;
+	color: #555;
+}
+
+.descripcion-dialogo {
+	background-color: #f8f9fa;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	margin: 20px 0;
+	text-align: center;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.descripcion-dialogo h2 {
+	font-size: 24px;
+	margin-bottom: 10px;
+}
+
+.descripcion-dialogo p {
+	font-size: 16px;
+	color: #555;
+}
+
+.medicamentos-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Tarjetas más grandes */
+	gap: 30px; /* Espaciado entre tarjetas */
+}
+
+.medicamento-card {
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px; /* Más espacio interno */
+	text-align: center;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.medicamento-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Efecto hover más visible */
+}
+
+.medicamento-card img {
+	max-width: 100%;
+	height: 200px; /* Tamaño fijo para imágenes */
+	object-fit: cover; /* Ajustar imagen al contenedor */
+	border-radius: 8px;
+	margin-bottom: 15px; /* Separación con el texto */
+}
+
+.medicamento-card h3 {
+	font-size: 20px; /* Título más grande */
+	margin: 10px 0;
+}
+
+.medicamento-card p {
+	font-size: 16px; /* Texto más legible */
+	color: #666;
+	margin: 5px 0;
+}

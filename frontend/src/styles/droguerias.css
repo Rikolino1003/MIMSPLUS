@@ -1,0 +1,331 @@
+/* ============================================
+   DROGUERIAS - CHAT WHATSAPP STYLE
+   ============================================ */
+
+.droguerias-page {
+  display: grid !important;
+  grid-template-columns: 320px 1fr !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: #ffffff !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI" !important;
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.droguerias-page.unauthorized {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #e6fffa 100%) !important;
+}
+
+.error-message {
+  text-align: center !important;
+  padding: 2rem !important;
+}
+
+.error-message h2 {
+  font-size: 1.5rem !important;
+  color: #0f172a !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.error-message p {
+  color: #64748b !important;
+}
+
+/* ===== LISTA DE DROGUERIAS ===== */
+.droguerias-list {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100vh !important;
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+  overflow: hidden !important;
+}
+
+.list-header {
+  padding: 1rem !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.list-header h2 {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin: 0 !important;
+}
+
+.badge-admin {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+  color: #ffffff !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 99px !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+}
+
+.list-container {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+
+.drogueria-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 1rem !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  cursor: pointer !important;
+  transition: background-color 200ms ease, color 200ms ease !important;
+  text-align: left !important;
+}
+
+.drogueria-item:hover:not(.disabled) {
+  background-color: #f8fafc !important;
+}
+
+.drogueria-item.active {
+  background: linear-gradient(90deg, #06b6d4 0%, rgba(6,182,212,0.05) 100%) !important;
+  border-left: 4px solid #06b6d4 !important;
+  padding-left: calc(1rem - 4px) !important;
+}
+
+.drogueria-item.disabled {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+}
+
+.item-content {
+  flex: 1 !important;
+}
+
+.item-content h3 {
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  margin: 0 0 0.25rem 0 !important;
+}
+
+.item-content p {
+  font-size: 0.85rem !important;
+  color: #64748b !important;
+  margin: 0 !important;
+}
+
+.empty-state {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #94a3b8 !important;
+  text-align: center !important;
+  padding: 2rem !important;
+}
+
+/* ===== CHAT WINDOW ===== */
+.chat-window {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100vh !important;
+  background: #ffffff !important;
+  position: relative !important;
+}
+
+.chat-window.empty {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.chat-window.empty .empty-state {
+  color: #94a3b8 !important;
+  font-size: 1rem !important;
+}
+
+.chat-header {
+  padding: 1rem 1.5rem !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.04) !important;
+}
+
+.chat-header h2 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin: 0 0 0.25rem 0 !important;
+}
+
+.chat-header p {
+  font-size: 0.85rem !important;
+  color: #64748b !important;
+  margin: 0 !important;
+}
+
+.messages-container {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 1.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  background: #f8fafc !important;
+}
+
+.empty-messages {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #94a3b8 !important;
+  text-align: center !important;
+}
+
+/* ===== MENSAJE ===== */
+.message-item {
+  display: flex !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.message-item.usuario {
+  justify-content: flex-end !important;
+}
+
+.message-item.drogueria {
+  justify-content: flex-start !important;
+}
+
+.message-bubble {
+  max-width: 70% !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 12px !important;
+  word-wrap: break-word !important;
+}
+
+.message-item.usuario .message-bubble {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+  color: #ffffff !important;
+}
+
+.message-item.drogueria .message-bubble {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.message-text {
+  margin: 0 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+}
+
+.message-time {
+  display: block !important;
+  font-size: 0.75rem !important;
+  opacity: 0.7 !important;
+  margin-top: 0.25rem !important;
+}
+
+/* ===== INPUT MESSAGE ===== */
+.input-message {
+  padding: 1rem 1.5rem !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  display: flex !important;
+  gap: 0.75rem !important;
+  box-shadow: 0 -2px 8px rgba(15,23,42,0.04) !important;
+}
+
+.input-message textarea {
+  flex: 1 !important;
+  padding: 0.75rem !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  font-family: inherit !important;
+  font-size: 0.95rem !important;
+  resize: none !important;
+  transition: border-color 200ms ease !important;
+}
+
+.input-message textarea:focus {
+  outline: none !important;
+  border-color: #06b6d4 !important;
+  box-shadow: 0 0 0 3px rgba(6,182,212,0.1) !important;
+}
+
+.input-message button {
+  padding: 0.75rem 1rem !important;
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: opacity 200ms ease, transform 200ms ease !important;
+}
+
+.input-message button:hover:not(:disabled) {
+  opacity: 0.9 !important;
+  transform: scale(1.05) !important;
+}
+
+.input-message button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+/* ===== SCROLLBAR ===== */
+.list-container::-webkit-scrollbar,
+.messages-container::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.list-container::-webkit-scrollbar-track,
+.messages-container::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.list-container::-webkit-scrollbar-thumb,
+.messages-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 4px !important;
+}
+
+.list-container::-webkit-scrollbar-thumb:hover,
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .droguerias-page {
+    grid-template-columns: 1fr !important;
+  }
+
+  .droguerias-list {
+    display: none !important;
+  }
+
+  .chat-window {
+    width: 100% !important;
+  }
+
+  .message-bubble {
+    max-width: 85% !important;
+  }
+}

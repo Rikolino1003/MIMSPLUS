@@ -1,0 +1,35 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.env.local
+
+# SQLite database
+db.sqlite3
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+
+# Packages
+pip-wheel-metadata/
+
+# Editor directories
+.vscode/
+.idea/
+
+# Python virtual env metadata
+.pytest_cache/
+htmlcov/
+
+*.zip
+
+# Frontend dependencies (do not commit node_modules)
+frontend/node_modules/
+MIMS_PLUS/

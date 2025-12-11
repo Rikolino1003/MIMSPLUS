@@ -1,0 +1,1039 @@
+=================================================================
+📊 MÓDULO DE REPORTES - GUÍA COMPLETA
+=================================================================
+
+Bienvenido a la documentación completa del módulo de Reportes del Sistema MIMS.
+Esta guía te explicará todo lo que necesitas saber sobre este módulo, desde su
+estructura hasta cómo generar PDFs y usar todas sus funcionalidades.
+
+Autor: Sistema MIMS
+Fecha: 2025
+Versión: 1.0
+
+=================================================================
+📋 TABLA DE CONTENIDO
+=================================================================
+
+1. INTRODUCCIÓN AL MÓDULO
+2. ESTRUCTURA DEL MÓDULO
+3. MODELO DE DATOS (Reporte)
+4. ENDPOINTS Y API
+5. GENERACIÓN DE PDF
+6. PERMISOS Y SEGURIDAD
+7. EJEMPLOS DE USO
+8. SOLUCIÓN DE PROBLEMAS
+9. MEJORES PRÁCTICAS
+
+=================================================================
+1. INTRODUCCIÓN AL MÓDULO
+=================================================================
+
+El módulo de Reportes permite gestionar, crear, editar y consultar reportes
+del sistema. Cada reporte puede tener:
+- Fecha de medición (cuándo se tomaron los datos)
+- Estado del reporte (pendiente, en proceso, completado, etc.)
+- ID único del reporte
+- Tipo de reporte (inventario, ventas, financiero, etc.)
+- Relaciones con usuarios y droguerías
+- Generación de PDF profesional
+- Envío por correo electrónico
+
+Este módulo está diseñado siguiendo las mejores prácticas de Django y Django
+REST Framework, similar al módulo de facturación pero adaptado para reportes.
+
+=================================================================
+2. ESTRUCTURA DEL MÓDULO
+=================================================================
+
+El módulo de reportes está organizado en la siguiente estructura:
+
+reportes/
+├── __init__.py              # Inicialización del módulo
+├── apps.py                  # Configuración de la aplicación Django
+├── models.py                # Modelo de datos Reporte
+├── serializers.py           # Serializers para API
+├── views.py                 # Vistas (endpoints) del módulo
+├── urls.py                  # Configuración de rutas URL
+├── permissions.py           # Sistema de permisos
+├── admin.py                 # Configuración del admin de Django
+├── tests.py                 # Tests unitarios (pendiente)
+├── utils/                   # Utilidades
+│   ├── __init__.py
+│   └── pdf_generator.py     # Generador de PDF para reportes
+└── REPORTE_GENERATOR_PDF.txt  # Esta documentación
+
+Cada archivo tiene un propósito específico y está bien comentado para facilitar
+el mantenimiento y comprensión del código.
+
+=================================================================
+3. MODELO DE DATOS (Reporte)
+=================================================================
+
+El modelo Reporte almacena toda la información de un reporte. Aquí te explico
+cada campo en detalle:
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CAMPOS PRINCIPALES                                              │
+└─────────────────────────────────────────────────────────────────┘
+
+• id_reporte (CharField, único)
+  - Código único identificador del reporte
+  - Formato: REP-YYYYMMDD-HHMMSS-XXXX
+  - Se genera automáticamente si no se proporciona
+  - Ejemplo: REP-20250125-143022-0001
+
+• titulo (CharField, máximo 200 caracteres)
+  - Título descriptivo del reporte
+  - Ejemplo: "Reporte de Inventario Enero 2025"
+  - Campo obligatorio
+
+• tipo_reporte (CharField con choices)
+  - Clasificación del tipo de reporte
+  - Opciones disponibles:
+    * inventario: Reportes de inventario
+    * ventas: Reportes de ventas
+    * financiero: Reportes financieros
+    * medicamentos: Reportes de medicamentos
+    * pedidos: Reportes de pedidos
+    * clientes: Reportes de clientes
+    * general: Reportes generales
+    * personalizado: Reportes personalizados
+
+• fecha_medicion (DateTimeField)
+  - Fecha y hora en que se realizó la medición o se tomaron los datos
+  - Importante: No puede ser una fecha futura
+  - Se usa para ordenar y filtrar reportes por período
+
+• estado (CharField con choices)
+  - Estado actual del reporte
+  - Opciones disponibles:
+    * pendiente: El reporte está pendiente de procesamiento
+    * en_proceso: El reporte está siendo procesado
+    * completado: El reporte está completo
+    * revisado: El reporte ha sido revisado
+    * aprobado: El reporte ha sido aprobado
+    * rechazado: El reporte fue rechazado
+    * cancelado: El reporte fue cancelado
+
+┌─────────────────────────────────────────────────────────────────┐
+│ RELACIONES                                                      │
+└─────────────────────────────────────────────────────────────────┘
+
+• creado_por (ForeignKey a Usuario)
+  - Usuario que creó el reporte
+  - Se asigna automáticamente al crear un reporte
+  - Relación: muchos reportes → un usuario
+
+• revisado_por (ForeignKey a Usuario, opcional)
+  - Usuario que revisó el reporte
+  - Se asigna cuando el reporte es revisado o aprobado
+
+• drogueria (ForeignKey a Drogueria, opcional)
+  - Droguería asociada al reporte
+  - Permite filtrar reportes por droguería
+
+┌─────────────────────────────────────────────────────────────────┐
+│ INFORMACIÓN ADICIONAL                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+• descripcion (TextField, opcional)
+  - Descripción detallada del contenido del reporte
+  - Puede contener texto largo explicando qué contiene el reporte
+
+• observaciones (TextField, opcional)
+  - Observaciones, notas o comentarios adicionales
+  - Útil para anotaciones sobre el reporte
+
+• datos_json (JSONField, opcional)
+  - Datos estructurados del reporte en formato JSON
+  - Permite almacenar datos complejos y estructurados
+  - Ejemplo:
+    {
+      "total_medicamentos": 150,
+      "stock_bajo": 12,
+      "medicamentos_vencidos": 3,
+      "valor_total": 5000000
+    }
+
+┌─────────────────────────────────────────────────────────────────┐
+│ FECHAS DE AUDITORÍA                                             │
+└─────────────────────────────────────────────────────────────────┘
+
+• fecha_creacion (DateTimeField, automático)
+  - Se crea automáticamente al guardar el reporte por primera vez
+  - No se puede modificar manualmente
+
+• fecha_actualizacion (DateTimeField, automático)
+  - Se actualiza automáticamente cada vez que se modifica el reporte
+  - Útil para saber cuándo fue la última modificación
+
+• fecha_revision (DateTimeField, opcional)
+  - Fecha en que fue revisado el reporte
+  - Se establece automáticamente al marcar como revisado
+
+• fecha_aprobacion (DateTimeField, opcional)
+  - Fecha en que fue aprobado el reporte
+  - Se establece automáticamente al marcar como aprobado
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ARCHIVOS Y ESTADO                                               │
+└─────────────────────────────────────────────────────────────────┘
+
+• archivo_pdf (CharField, opcional)
+  - Ruta al archivo PDF generado del reporte
+  - Se usa si se guarda el PDF en el servidor
+
+• pdf_generado (BooleanField, default=False)
+  - Indica si el PDF del reporte ya fue generado
+  - Se marca automáticamente al descargar el PDF
+
+• correo_enviado (BooleanField, default=False)
+  - Indica si el reporte fue enviado por correo electrónico
+  - Se marca automáticamente al enviar por correo
+
+=================================================================
+4. ENDPOINTS Y API
+=================================================================
+
+El módulo de reportes expone varios endpoints REST para interactuar con
+los reportes. Todos los endpoints requieren autenticación JWT.
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ENDPOINTS PRINCIPALES                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+BASE URL: /api/reportes/
+
+1. LISTAR TODOS LOS REPORTES
+   GET /api/reportes/reportes/
+   
+   Descripción: Obtiene la lista de todos los reportes
+   Permisos: Empleado o Administrador (ver todos), Cliente (solo los suyos)
+   
+   Parámetros opcionales de consulta (query params):
+   - ?estado=pendiente        Filtra por estado
+   - ?tipo_reporte=inventario Filtra por tipo
+   - ?creado_por=5            Filtra por usuario creador
+   
+   Respuesta exitosa (200):
+   [
+     {
+       "id": 1,
+       "id_reporte": "REP-20250125-143022-0001",
+       "titulo": "Reporte de Inventario",
+       "tipo_reporte": "inventario",
+       "estado": "completado",
+       "fecha_medicion": "2025-01-25T14:30:22Z",
+       "creado_por_nombre": "Juan Pérez",
+       "drogueria_nombre": "Droguería Principal",
+       "fecha_creacion": "2025-01-25T14:30:22Z",
+       "pdf_generado": true
+     },
+     ...
+   ]
+
+2. CREAR UN NUEVO REPORTE
+   POST /api/reportes/reportes/
+   
+   Descripción: Crea un nuevo reporte
+   Permisos: Empleado o Administrador
+   
+   Cuerpo de la petición (JSON):
+   {
+     "titulo": "Reporte de Inventario Enero 2025",
+     "tipo_reporte": "inventario",
+     "fecha_medicion": "2025-01-25T14:30:22Z",
+     "estado": "pendiente",
+     "drogueria": 1,
+     "descripcion": "Reporte mensual de inventario",
+     "observaciones": "Todo en orden",
+     "datos_json": {
+       "total_medicamentos": 150,
+       "stock_bajo": 12
+     }
+   }
+   
+   Respuesta exitosa (201):
+   {
+     "id": 1,
+     "id_reporte": "REP-20250125-143022-0001",
+     "titulo": "Reporte de Inventario Enero 2025",
+     ...
+   }
+
+3. OBTENER UN REPORTE ESPECÍFICO
+   GET /api/reportes/reportes/{id}/
+   
+   Descripción: Obtiene los detalles completos de un reporte
+   Permisos: Empleado/Admin (cualquiera), Cliente (solo los suyos)
+   
+   Respuesta exitosa (200):
+   {
+     "id": 1,
+     "id_reporte": "REP-20250125-143022-0001",
+     "titulo": "Reporte de Inventario Enero 2025",
+     "tipo_reporte": "inventario",
+     "estado": "completado",
+     "fecha_medicion": "2025-01-25T14:30:22Z",
+     "creado_por": 1,
+     "creado_por_nombre": "Juan Pérez",
+     "revisado_por": 2,
+     "revisado_por_nombre": "María García",
+     "drogueria": 1,
+     "drogueria_nombre": "Droguería Principal",
+     "descripcion": "Reporte mensual de inventario",
+     "observaciones": "Todo en orden",
+     "datos_json": {...},
+     "fecha_creacion": "2025-01-25T14:30:22Z",
+     "fecha_actualizacion": "2025-01-25T15:00:00Z",
+     "fecha_revision": "2025-01-25T14:45:00Z",
+     "fecha_aprobacion": "2025-01-25T15:00:00Z",
+     "archivo_pdf": null,
+     "pdf_generado": true,
+     "correo_enviado": false
+   }
+
+4. ACTUALIZAR UN REPORTE
+   PUT /api/reportes/reportes/{id}/
+   PATCH /api/reportes/reportes/{id}/
+   
+   Descripción: Actualiza un reporte existente
+   Permisos: Empleado/Admin (cualquiera), Cliente (solo los suyos)
+   
+   Cuerpo de la petición (JSON, solo campos a actualizar):
+   {
+     "estado": "completado",
+     "observaciones": "Reporte completado y revisado"
+   }
+   
+   Respuesta exitosa (200): Reporte actualizado
+
+5. ELIMINAR UN REPORTE
+   DELETE /api/reportes/reportes/{id}/
+   
+   Descripción: Elimina un reporte
+   Permisos: Empleado o Administrador
+   
+   Respuesta exitosa (204): Sin contenido
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ENDPOINTS ADICIONALES                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+6. LISTAR REPORTES CON FILTROS
+   GET /api/reportes/lista/
+   
+   Descripción: Lista reportes con filtros avanzados
+   Parámetros: Mismos que el endpoint principal
+
+7. MIS REPORTES
+   GET /api/reportes/mis-reportes/
+   
+   Descripción: Lista solo los reportes creados por el usuario autenticado
+   Permisos: Usuario autenticado
+
+8. CREAR REPORTE MANUAL
+   POST /api/reportes/crear/
+   
+   Descripción: Crea un reporte de forma manual (usado por el panel)
+   Permisos: Empleado o Administrador
+
+9. CONSULTAR ESTADO DE UN REPORTE
+   GET /api/reportes/reportes/{id}/estado/
+   
+   Descripción: Consulta solo el estado de un reporte específico
+   Respuesta:
+   {
+     "id_reporte": "REP-20250125-143022-0001",
+     "titulo": "Reporte de Inventario",
+     "estado": "completado",
+     "fecha_creacion": "2025-01-25T14:30:22Z",
+     "fecha_actualizacion": "2025-01-25T15:00:00Z",
+     "fecha_revision": "2025-01-25T14:45:00Z",
+     "fecha_aprobacion": "2025-01-25T15:00:00Z",
+     "pdf_generado": true
+   }
+
+10. APROBAR UN REPORTE
+    POST /api/reportes/reportes/{id}/aprobar/
+    
+    Descripción: Aprueba un reporte (solo administradores)
+    Permisos: Solo Administrador
+    
+    Respuesta exitosa (200):
+    {
+      "mensaje": "Reporte REP-20250125-143022-0001 aprobado correctamente",
+      "reporte_id": 1,
+      "estado": "aprobado",
+      "fecha_aprobacion": "2025-01-25T15:00:00Z"
+    }
+
+11. DESCARGAR PDF DEL REPORTE
+    GET /api/reportes/reportes/{id}/descargar/
+    
+    Descripción: Descarga el PDF del reporte
+    Permisos: Usuario autenticado (puede ver el reporte)
+    
+    Respuesta: Archivo PDF para descargar
+    Headers:
+    - Content-Type: application/pdf
+    - Content-Disposition: attachment; filename="reporte_REP-XXX_20250125.pdf"
+
+12. ENVIAR REPORTE POR CORREO
+    POST /api/reportes/reportes/{id}/enviar-email/
+    
+    Descripción: Envía el reporte por correo electrónico
+    Permisos: Empleado o Administrador
+    
+    Cuerpo de la petición (JSON, opcional):
+    {
+      "email": "destinatario@example.com"
+    }
+    Si no se especifica el email, se envía al creador del reporte.
+    
+    Respuesta exitosa (200):
+    {
+      "mensaje": "Reporte enviado a destinatario@example.com",
+      "reporte_id": 1,
+      "correo_enviado": true
+    }
+
+=================================================================
+5. GENERACIÓN DE PDF
+=================================================================
+
+El módulo de reportes incluye un generador de PDF profesional usando ReportLab.
+El PDF generado incluye toda la información del reporte en un formato bien
+estructurado y fácil de leer.
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ESTRUCTURA DEL PDF                                              │
+└─────────────────────────────────────────────────────────────────┘
+
+1. ENCABEZADO
+   - Logo/nombre de la empresa (Droguería MIMS S.A.S)
+   - Información de contacto (NIT, Teléfono, Dirección)
+
+2. TÍTULO DEL REPORTE
+   - ID del reporte (ej: REPORTE REP-20250125-143022-0001)
+   - Título del reporte en cursiva
+
+3. INFORMACIÓN GENERAL
+   - Tabla con todos los datos principales:
+     * ID del Reporte
+     * Tipo de Reporte
+     * Estado (con colores según el estado)
+     * Fecha de Medición
+     * Fecha de Creación
+     * Última Actualización
+     * Creado Por
+     * Revisado Por
+     * Fecha de Revisión
+     * Fecha de Aprobación
+     * Droguería
+
+4. DESCRIPCIÓN
+   - Descripción detallada del reporte (si existe)
+
+5. OBSERVACIONES
+   - Observaciones o notas (si existen)
+
+6. DATOS JSON (si existen)
+   - Tabla con los datos estructurados del reporte
+   - Se muestran los primeros 20 elementos para evitar PDFs muy largos
+
+7. RESUMEN DEL ESTADO
+   - Estado actual con fondo de color según el estado:
+     * Pendiente: Amarillo claro
+     * En Proceso: Azul claro
+     * Completado: Verde claro
+     * Revisado: Azul claro
+     * Aprobado: Verde claro
+     * Rechazado: Rojo claro
+     * Cancelado: Rojo claro
+   - Indicador de PDF generado
+   - Indicador de correo enviado
+
+8. FOOTER
+   - Información del sistema
+   - Fecha de generación del PDF
+
+┌─────────────────────────────────────────────────────────────────┐
+│ USO DEL GENERADOR DE PDF                                        │
+└─────────────────────────────────────────────────────────────────┘
+
+El PDF se genera automáticamente cuando se descarga un reporte. Para usar
+el generador directamente desde Python:
+
+from reportes.utils.pdf_generator import generar_pdf_reporte
+from reportes.models import Reporte
+
+# Obtener un reporte
+reporte = Reporte.objects.get(id=1)
+
+# Generar el PDF
+pdf_buffer = generar_pdf_reporte(reporte)
+
+# Guardar el PDF en un archivo
+with open('reporte.pdf', 'wb') as f:
+    f.write(pdf_buffer.getvalue())
+
+# O devolverlo en una respuesta HTTP
+from django.http import HttpResponse
+response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+response['Content-Disposition'] = 'attachment; filename="reporte.pdf"'
+return response
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PERSONALIZACIÓN DEL PDF                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+Para personalizar el PDF, edita el archivo:
+reportes/utils/pdf_generator.py
+
+Puedes modificar:
+- Colores y estilos
+- Estructura del documento
+- Información mostrada
+- Formato de las tablas
+- Logo de la empresa (agregando imágenes)
+
+=================================================================
+6. PERMISOS Y SEGURIDAD
+=================================================================
+
+El módulo de reportes implementa un sistema de permisos robusto para
+garantizar que solo los usuarios autorizados puedan realizar ciertas
+acciones.
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ROLES Y PERMISOS                                                │
+└─────────────────────────────────────────────────────────────────┘
+
+ADMINISTRADOR:
+- ✅ Crear reportes
+- ✅ Ver todos los reportes
+- ✅ Editar cualquier reporte
+- ✅ Eliminar reportes
+- ✅ Aprobar reportes
+- ✅ Descargar PDFs de cualquier reporte
+- ✅ Enviar reportes por correo
+
+EMPLEADO:
+- ✅ Crear reportes
+- ✅ Ver todos los reportes
+- ✅ Editar sus propios reportes
+- ✅ Editar reportes pendientes (para asignarlos)
+- ✅ Eliminar reportes
+- ✅ Descargar PDFs de cualquier reporte
+- ✅ Enviar reportes por correo
+- ❌ Aprobar reportes (solo administradores)
+
+CLIENTE:
+- ✅ Ver sus propios reportes
+- ✅ Consultar estado de sus reportes
+- ✅ Descargar PDFs de sus reportes
+- ❌ Crear reportes
+- ❌ Editar reportes
+- ❌ Eliminar reportes
+- ❌ Aprobar reportes
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CLASES DE PERMISOS                                              │
+└─────────────────────────────────────────────────────────────────┘
+
+El módulo incluye varias clases de permisos personalizadas:
+
+1. EsEmpleadoOAdministrador
+   - Permite acceso completo a empleados y administradores
+   - Los clientes solo pueden leer
+
+2. PuedeCrearReporte
+   - Solo empleados y administradores pueden crear reportes
+
+3. PuedeEditarReporte
+   - Solo el creador o un administrador puede editar un reporte
+   - Los empleados pueden editar reportes pendientes
+
+4. PuedeVerReporte
+   - Controla quién puede ver un reporte específico
+   - Los clientes solo ven sus propios reportes
+
+5. PuedeAprobarReporte
+   - Solo administradores pueden aprobar reportes
+
+=================================================================
+7. EJEMPLOS DE USO
+=================================================================
+
+Aquí tienes ejemplos prácticos de cómo usar el módulo de reportes:
+
+┌─────────────────────────────────────────────────────────────────┐
+│ EJEMPLO 1: CREAR UN REPORTE                                     │
+└─────────────────────────────────────────────────────────────────┘
+
+// Desde JavaScript/Frontend (React)
+
+import api from '../services/api';
+
+const crearReporte = async () => {
+  try {
+    const reporteData = {
+      titulo: "Reporte de Inventario Enero 2025",
+      tipo_reporte: "inventario",
+      fecha_medicion: new Date().toISOString(),
+      estado: "pendiente",
+      descripcion: "Reporte mensual de inventario de medicamentos",
+      observaciones: "Se encontraron 12 medicamentos con stock bajo",
+      datos_json: {
+        total_medicamentos: 150,
+        stock_bajo: 12,
+        medicamentos_vencidos: 3,
+        valor_total: 5000000
+      }
+    };
+
+    const response = await api.post('/api/reportes/reportes/', reporteData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    console.log('Reporte creado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al crear reporte:', error);
+    throw error;
+  }
+};
+
+┌─────────────────────────────────────────────────────────────────┐
+│ EJEMPLO 2: LISTAR REPORTES CON FILTROS                          │
+└─────────────────────────────────────────────────────────────────┘
+
+const listarReportes = async (estado = null, tipo = null) => {
+  try {
+    let url = '/api/reportes/reportes/';
+    const params = new URLSearchParams();
+    
+    if (estado) params.append('estado', estado);
+    if (tipo) params.append('tipo_reporte', tipo);
+    
+    if (params.toString()) {
+      url += '?' + params.toString();
+    }
+
+    const response = await api.get(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error al listar reportes:', error);
+    throw error;
+  }
+};
+
+// Uso:
+const reportesCompletados = await listarReportes('completado');
+const reportesInventario = await listarReportes(null, 'inventario');
+
+┌─────────────────────────────────────────────────────────────────┐
+│ EJEMPLO 3: DESCARGAR PDF DE UN REPORTE                          │
+└─────────────────────────────────────────────────────────────────┘
+
+const descargarPDF = async (reporteId) => {
+  try {
+    const response = await api.get(
+      `/api/reportes/reportes/${reporteId}/descargar/`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        responseType: 'blob' // Importante para archivos binarios
+      }
+    );
+
+    // Crear un enlace de descarga
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `reporte_${reporteId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error al descargar PDF:', error);
+    throw error;
+  }
+};
+
+┌─────────────────────────────────────────────────────────────────┐
+│ EJEMPLO 4: ACTUALIZAR ESTADO DE UN REPORTE                      │
+└─────────────────────────────────────────────────────────────────┘
+
+const actualizarEstado = async (reporteId, nuevoEstado) => {
+  try {
+    const response = await api.patch(
+      `/api/reportes/reportes/${reporteId}/`,
+      {
+        estado: nuevoEstado,
+        observaciones: `Estado cambiado a ${nuevoEstado}`
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log('Reporte actualizado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar reporte:', error);
+    throw error;
+  }
+};
+
+// Uso:
+await actualizarEstado(1, 'completado');
+
+┌─────────────────────────────────────────────────────────────────┐
+│ EJEMPLO 5: APROBAR UN REPORTE                                   │
+└─────────────────────────────────────────────────────────────────┘
+
+const aprobarReporte = async (reporteId) => {
+  try {
+    const response = await api.post(
+      `/api/reportes/reportes/${reporteId}/aprobar/`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+
+    console.log('Reporte aprobado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al aprobar reporte:', error);
+    throw error;
+  }
+};
+
+┌─────────────────────────────────────────────────────────────────┐
+│ EJEMPLO 6: ENVIAR REPORTE POR CORREO                            │
+└─────────────────────────────────────────────────────────────────┘
+
+const enviarPorCorreo = async (reporteId, emailDestinatario = null) => {
+  try {
+    const data = emailDestinatario ? { email: emailDestinatario } : {};
+    
+    const response = await api.post(
+      `/api/reportes/reportes/${reporteId}/enviar-email/`,
+      data,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    console.log('Reporte enviado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al enviar reporte:', error);
+    throw error;
+  }
+};
+
+// Uso:
+await enviarPorCorreo(1); // Envía al creador del reporte
+await enviarPorCorreo(1, 'otro@example.com'); // Envía a un email específico
+
+┌─────────────────────────────────────────────────────────────────┐
+│ EJEMPLO 7: CONSULTAR ESTADO DE UN REPORTE                       │
+└─────────────────────────────────────────────────────────────────┘
+
+const consultarEstado = async (reporteId) => {
+  try {
+    const response = await api.get(
+      `/api/reportes/reportes/${reporteId}/estado/`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+
+    console.log('Estado del reporte:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al consultar estado:', error);
+    throw error;
+  }
+};
+
+=================================================================
+8. SOLUCIÓN DE PROBLEMAS
+=================================================================
+
+Aquí encontrarás soluciones a los problemas más comunes:
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEMA: Error 403 - No tienes permiso                         │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSA: El usuario no tiene los permisos necesarios para la acción.
+
+SOLUCIÓN:
+1. Verifica que el usuario esté autenticado
+2. Verifica el rol del usuario (debe ser empleado o admin para crear/editar)
+3. Si eres cliente, solo puedes ver/editar tus propios reportes
+4. Para aprobar reportes, debes ser administrador
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEMA: Error 400 - La fecha de medición no puede ser futuro  │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSA: Se intentó crear un reporte con fecha de medición en el futuro.
+
+SOLUCIÓN:
+Asegúrate de que la fecha de medición sea una fecha pasada o presente:
+  fecha_medicion: new Date().toISOString() // Fecha actual
+  // O
+  fecha_medicion: "2025-01-25T14:30:22Z" // Fecha específica (pasada)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEMA: Error al generar PDF                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSA: Puede ser un problema con ReportLab o datos inválidos.
+
+SOLUCIÓN:
+1. Verifica que reportlab esté instalado: pip install reportlab
+2. Verifica que el reporte tenga datos válidos
+3. Revisa los logs del servidor para más detalles
+4. Asegúrate de que el reporte exista en la base de datos
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEMA: Error al enviar correo                                │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSA: Problema con la configuración de correo o email inválido.
+
+SOLUCIÓN:
+1. Verifica la configuración de correo en settings.py
+2. Asegúrate de que el destinatario tenga un email válido
+3. Verifica las credenciales de email en el archivo .env
+4. Revisa los logs del servidor para más detalles
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEMA: ID del reporte no se genera automáticamente           │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSA: El método generar_id_reporte() no se está llamando correctamente.
+
+SOLUCIÓN:
+El ID se genera automáticamente al crear el reporte. Si no se genera:
+1. Verifica que el reporte se haya guardado correctamente
+2. El ID se genera después del primer guardado, así que puede ser necesario
+   recargar el objeto desde la base de datos:
+   
+   reporte = Reporte.objects.create(...)
+   reporte.refresh_from_db()
+   print(reporte.id_reporte) // Ahora debería tener el ID
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PROBLEMA: No se pueden filtrar reportes                         │
+└─────────────────────────────────────────────────────────────────┘
+
+CAUSA: Los parámetros de filtro pueden estar mal formados.
+
+SOLUCIÓN:
+Asegúrate de usar los nombres correctos de los parámetros:
+  ✅ ?estado=pendiente
+  ✅ ?tipo_reporte=inventario
+  ✅ ?creado_por=5
+  ❌ ?estado_report=pendiente (incorrecto)
+  ❌ ?tipo=inventario (incorrecto)
+
+=================================================================
+9. MEJORES PRÁCTICAS
+=================================================================
+
+Aquí tienes algunas mejores prácticas para usar el módulo de reportes:
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CREACIÓN DE REPORTES                                            │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Siempre proporciona un título descriptivo y claro
+2. Selecciona el tipo de reporte correcto
+3. Usa fecha_medicion para indicar cuándo se tomaron los datos
+4. Incluye una descripción detallada cuando sea posible
+5. Usa datos_json para almacenar información estructurada
+
+EJEMPLO BUENO:
+{
+  "titulo": "Reporte de Inventario - Enero 2025",
+  "tipo_reporte": "inventario",
+  "fecha_medicion": "2025-01-31T23:59:59Z",
+  "descripcion": "Reporte mensual de inventario con análisis de stock",
+  "datos_json": {
+    "total_medicamentos": 150,
+    "stock_bajo": 12,
+    "medicamentos_vencidos": 3
+  }
+}
+
+EJEMPLO MALO:
+{
+  "titulo": "Reporte",
+  "tipo_reporte": "general",
+  "fecha_medicion": "2026-12-31T23:59:59Z", // Fecha futura
+  "descripcion": ""
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ GESTIÓN DE ESTADOS                                              │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Usa el flujo de estados recomendado:
+   pendiente → en_proceso → completado → revisado → aprobado
+
+2. Usa observaciones para documentar cambios de estado
+
+3. No cambies directamente a "aprobado" sin pasar por "revisado"
+
+4. Usa "rechazado" o "cancelado" cuando sea apropiado
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ORGANIZACIÓN DE DATOS                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Usa datos_json para información estructurada:
+   {
+     "metricas": {
+       "total": 100,
+       "promedio": 50
+     },
+     "detalles": [
+       {"item": "A", "valor": 10},
+       {"item": "B", "valor": 20}
+     ]
+   }
+
+2. Mantén la descripción y observaciones separadas:
+   - descripcion: Qué contiene el reporte
+   - observaciones: Notas y comentarios sobre el reporte
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SEGURIDAD                                                       │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Siempre valida los permisos antes de mostrar/editar reportes
+2. No expongas información sensible en datos_json
+3. Usa HTTPS en producción
+4. Valida todos los datos de entrada
+5. Limita el tamaño de datos_json para evitar problemas
+
+┌─────────────────────────────────────────────────────────────────┐
+│ RENDIMIENTO                                                     │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Usa filtros cuando listes reportes para reducir la carga
+2. Implementa paginación en el frontend
+3. No generes PDFs innecesariamente (ya están marcados como generados)
+4. Limita el tamaño de datos_json (máximo recomendado: 10MB)
+
+=================================================================
+10. CONFIGURACIÓN E INSTALACIÓN
+=================================================================
+
+Para usar el módulo de reportes, asegúrate de tener configurado lo siguiente:
+
+┌─────────────────────────────────────────────────────────────────┐
+│ INSTALACIÓN DE DEPENDENCIAS                                     │
+└─────────────────────────────────────────────────────────────────┘
+
+El módulo requiere las siguientes dependencias (ya incluidas en requirements.txt):
+
+- Django >= 4.2
+- djangorestframework
+- reportlab (para generación de PDF)
+- pillow (para manejo de imágenes en PDF, si se necesita)
+
+Instalar:
+pip install -r requirements.txt
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CONFIGURACIÓN EN SETTINGS.PY                                    │
+└─────────────────────────────────────────────────────────────────┘
+
+El módulo ya está agregado en INSTALLED_APPS:
+
+INSTALLED_APPS = [
+    ...
+    'reportes',
+]
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CONFIGURACIÓN DE URLs                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+Las rutas ya están configuradas en backend/urls.py:
+
+urlpatterns = [
+    ...
+    path('api/reportes/', include('reportes.urls')),
+]
+
+┌─────────────────────────────────────────────────────────────────┐
+│ MIGRACIONES                                                     │
+└─────────────────────────────────────────────────────────────────┘
+
+Para crear las tablas en la base de datos:
+
+python manage.py makemigrations reportes
+python manage.py migrate
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CONFIGURACIÓN DEL ADMIN                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+El modelo Reporte ya está registrado en el admin de Django.
+Puedes acceder a él desde: http://localhost:8000/admin/reportes/reporte/
+
+=================================================================
+11. CONCLUSIÓN
+=================================================================
+
+El módulo de reportes está completamente funcional y listo para usar.
+Incluye todas las funcionalidades esenciales:
+
+✅ Crear reportes
+✅ Editar reportes
+✅ Consultar estado
+✅ Filtrar y buscar reportes
+✅ Generar PDFs profesionales
+✅ Enviar reportes por correo
+✅ Sistema de permisos robusto
+✅ Fechas de medición
+✅ Estados de reporte
+✅ IDs únicos de reporte
+
+Si tienes preguntas o necesitas ayuda adicional, consulta los comentarios
+en el código o contacta al equipo de desarrollo.
+
+¡Feliz codificación! 🚀
+
+=================================================================
+FIN DE LA DOCUMENTACIÓN
+=================================================================

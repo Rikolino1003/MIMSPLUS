@@ -1,0 +1,26 @@
+# 🔹 Normalizar finales de línea para todos los archivos de texto
+* text=auto
+
+# 🔹 Forzar LF en archivos de código fuente
+*.py text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# 🔹 Binarios (no tocar)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.exe binary
+
+# 🔹 Evitar normalizar node_modules y entornos virtuales
+/frontend/node_modules/* -text
+/.venv/* -text
+/venv/* -text

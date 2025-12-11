@@ -1,0 +1,22 @@
+/* moved from pages/panelEmpleado.css -> styles/pages/panelEmpleado.css */
+.panel-container { max-width:950px; margin:40px auto; padding:35px; background:#ffffff; border-radius:14px; border:1px solid #e6e9f2; box-shadow:0 8px 25px rgba(0,0,0,0.06) }
+.titulo { text-align:center; font-size:26px; font-weight:700; color:#005bb5; margin-bottom:25px; letter-spacing:.5px }
+.subtitulo { margin-top:30px; font-size:20px; font-weight:600; color:#005bb5; border-left:4px solid #005bb5; padding-left:10px }
+.factura-form { background:#f7f9fc; padding:20px; border-radius:12px; border:1px solid #e3e7f1 }
+.campo { display:flex; flex-direction:column; margin-bottom:18px }
+.campo label { font-weight:600; color:#444; margin-bottom:6px }
+.campo input, .campo select, .campo textarea { padding:10px; border:1px solid #ccd3df; border-radius:8px; font-size:14px; transition:all .2s ease-in-out; background:#fff }
+.campo input:focus, .campo select:focus, .campo textarea:focus { border-color:#0077ff; box-shadow:0 0 4px rgba(0,119,255,0.2); outline:none }
+.detalle-row { display:flex; align-items:center; gap:12px; margin:10px 0; background:#f0f5ff; padding:12px; border-radius:10px; border:1px solid #e0e8fa; transition:all .2s }
+.detalle-row:hover{ background:#e9f1ff }
+.detalle-row select, .detalle-row input{ padding:8px; border-radius:8px; border:1px solid #c9d5e8; transition:all .2s; background:white }
+.detalle-row select:focus, .detalle-row input:focus{ border-color:#0077ff }
+.precio, .subtotal { font-weight:600; color:#333 }
+.btn-agregar { margin-top:15px; padding:10px 18px; background:#28a745; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600; transition:.2s }
+.btn-agregar:hover{ background:#218838 }
+.btn-eliminar { background:transparent; border:none; color:#d64545; cursor:pointer; font-size:20px; font-weight:bold; transition:.2s }
+.btn-eliminar:hover { color:#a82323; transform:scale(1.2) }
+.total { text-align:right; font-size:20px; font-weight:700; margin:25px 0; color:#333 }
+.btn-registrar { width:100%; padding:14px; background:#0069d9; color:white; border:none; border-radius:12px; font-size:17px; font-weight:600; cursor:pointer; transition:.25s }
+.btn-registrar:hover{ background:#0052ac; transform:translateY(-1px) }
+.mensaje { margin-top:18px; padding:12px; text-align:center; font-weight:600; border-radius:8px; background:#e8f0ff; color:#004a99; border:1px solid #bcd2ff }
